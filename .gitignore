@@ -1,0 +1,38 @@
+# Unity generated folders (project lives in "Solve&Go!/")
+# NOTE: some of these are already tracked from earlier commits; this file
+# prevents *new* generated files from being added. To fully untrack them, run
+# e.g. `git rm -r --cached "Solve&Go!/Library"` and commit.
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+
+# IDE / editor
+.vs/
+.idea/
+.vscode/
+*.csproj
+*.sln
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Unity crash reports & misc
+sysinfo.txt
+*.stackdump
+crashlytics-build.properties
+
+# OS files
+.DS_Store
+Thumbs.db
