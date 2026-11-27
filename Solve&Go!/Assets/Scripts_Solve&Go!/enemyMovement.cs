@@ -29,6 +29,7 @@ public class enemyMovement : MonoBehaviour
         myRigidBody = GetComponent<Rigidbody2D>();
         groundMask = LayerMask.GetMask("Ground");
         if (snapToGround) { SnapToGround(); }
+        FaceMoveDirection();
     }
 
     void Update()
@@ -77,7 +78,15 @@ public class enemyMovement : MonoBehaviour
     void Turn()
     {
         moveSpeed = -moveSpeed;
-        transform.localScale = new Vector2(Mathf.Sign(moveSpeed), 1f);
+        FaceMoveDirection();
         turnCooldown = 0.15f;
+    }
+
+    // A negative moveSpeed starts the enemy walking left; flip the sprite to match.
+    void FaceMoveDirection()
+    {
+        Vector3 s = transform.localScale;
+        s.x = Mathf.Abs(s.x) * Mathf.Sign(moveSpeed);
+        transform.localScale = s;
     }
 }
