@@ -1,68 +1,100 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
 
+// Keeps score and the death counter across levels, and owns the HUD.
+//
+// Dying never ends the run. The level restarts after a short pause and the
+// death counter goes up, troll-platformer style. Finishing the last level
+// returns to the main menu, which shows the stats of the run.
 public class gameSession : MonoBehaviour
 {
-    [SerializeField]int playerLives = 3;
+    public const string LastRunDeathsKey = "LastRunDeaths";
+    public const string LastRunScoreKey = "LastRunScore";
+
+    [Tooltip("Seconds between dying and the level restarting.")]
+    [SerializeField] float respawnDelay = 0.8f;
+    [SerializeField] int score = 0;
+
+    [Header("HUD")]
+    [SerializeField] TMP_FontAsset hudFont;
+    [SerializeField] Sprite coinIcon;
+
+    [Header("Old HUD texts (hidden when the game starts)")]
     [SerializeField] TextMeshProUGUI livesText;
     [SerializeField] TextMeshProUGUI scoreText;
-    [SerializeField] int score = 0;
+
+    int deaths;
+    bool respawning;
+    bool isDuplicate;
+    GameHud hud;
+
     void Awake()
     {
-       int numGameSessions = FindObjectsOfType<gameSession>().Length;
-       if(numGameSessions >1)
-    {
-        Destroy(gameObject);
-    } 
-    else
-    {
+        if (FindObjectsOfType<gameSession>().Length > 1)
+        {
+            isDuplicate = true;
+            gameObject.SetActive(false);
+            Destroy(gameObject);
+            return;
+        }
         DontDestroyOnLoad(gameObject);
-    } 
-    }
-    void Start() 
-    {
-        livesText.text = playerLives.ToString(); 
-        scoreText.text = score.ToString();        
     }
 
-    
+    void Start()
+    {
+        if (isDuplicate) { return; }
+
+        TextMeshProUGUI oldText = livesText != null ? livesText : scoreText;
+        if (oldText != null && oldText.canvas != null) { oldText.canvas.gameObject.SetActive(false); }
+
+        hud = GameHud.Create(transform, hudFont != null ? hudFont : TMP_Settings.defaultFontAsset, coinIcon);
+        hud.SetDeaths(deaths, false);
+        hud.SetScore(score, false);
+        hud.SetLevel(SceneManager.GetActiveScene().buildIndex, SceneManager.sceneCountInBuildSettings - 1);
+
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.buildIndex == 0)
+        {
+            // Back at the main menu means the run is over.
+            PlayerPrefs.SetInt(LastRunDeathsKey, deaths);
+            PlayerPrefs.SetInt(LastRunScoreKey, score);
+            PlayerPrefs.Save();
+            Destroy(gameObject);
+            return;
+        }
+        if (hud != null) { hud.SetLevel(scene.buildIndex, SceneManager.sceneCountInBuildSettings - 1); }
+    }
+
     public void ProcessPlayerDeath()
     {
-        if(playerLives > 1)
-        {
-            TakeLife();
-        }
-        else
-        {
-            ResetGameSession();
-        }
+        if (respawning) { return; }
+        respawning = true;
+        deaths++;
+        if (hud != null) { hud.SetDeaths(deaths, true); }
+        StartCoroutine(RestartLevel());
+    }
+
+    IEnumerator RestartLevel()
+    {
+        yield return new WaitForSecondsRealtime(respawnDelay);
+        respawning = false;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     public void AddToScore(int pointsToAdd)
     {
         score += pointsToAdd;
-        scoreText.text = score.ToString(); 
-
+        if (hud != null) { hud.SetScore(score, true); }
     }
-
-    void TakeLife()
-    {
-        playerLives--;
-        int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
-        SceneManager.LoadScene(currentSceneIndex);
-        livesText.text = playerLives.ToString();
-    }
-
-    void ResetGameSession()
-    {
-        FindObjectOfType<ScreenPersist>().ResetScenePersist();
-        SceneManager.LoadScene(0);
-        Destroy(gameObject);
-
-    }
-
-    
 }

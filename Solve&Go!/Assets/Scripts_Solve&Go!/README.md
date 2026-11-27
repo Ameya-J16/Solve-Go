@@ -16,16 +16,17 @@ The player controller. Uses the **Input System** callbacks (`OnMove`, `OnJump`, 
 Tunables exposed in the Inspector: `runSpeed`, `jumpSpeed`, `climbSpeed`, `deathkick`, bullet prefab, and gun transform.
 
 ### `gameSession.cs`
-Singleton-style session manager (survives scene loads via `DontDestroyOnLoad`, self-destructs if a duplicate exists). Tracks **lives** (default 3) and **score**, and updates the TextMesh Pro HUD labels.
+Singleton-style session manager (survives scene loads via `DontDestroyOnLoad`, self-destructs if a duplicate exists). Tracks **deaths** and **score** and builds the HUD (`UI/GameHud.cs`) when the game starts. The old lives/score texts in the prefab are hidden.
 
 - `AddToScore(int)` — called by pickups
-- `ProcessPlayerDeath()` — reloads the current level if lives remain, otherwise resets the whole session and returns to scene 0 (main menu)
+- `ProcessPlayerDeath()` — adds a death, flashes the HUD, and restarts the level after `respawnDelay` seconds (default 0.8). There is no game over.
+- When the main menu loads (after the last level), it saves the run's deaths and score to `PlayerPrefs` for the menu to show, then destroys itself so the next run starts fresh.
 
 ### `ScreenPersist.cs`
 Companion singleton that keeps scene-persistent objects alive between levels. `ResetScenePersist()` destroys it so a fresh copy is created when the game restarts.
 
 ### `enemyMovement.cs`
-Simple patrol AI: moves horizontally at `moveSpeed`, and when its edge-detection collider exits the ground (`OnTriggerExit2D`) it reverses direction and flips its sprite.
+Patrol AI: moves horizontally at `moveSpeed` and turns around (flipping its sprite) at walls and ledges, using short raycasts against the `Ground` layer. Enemies are kinematic, so they have no gravity. When the level starts, an enemy placed in mid-air snaps down onto the ground below it (`snapToGround`, on by default).
 
 ### `coinPickUp.cs`
 Trigger pickup. On contact with the `Player` tag it adds `pointsForCoinPickup` (default 100) to the session score, plays the pickup sound at the camera, and destroys itself. A `wascollected` guard prevents double-collection in a single frame.
@@ -34,7 +35,13 @@ Trigger pickup. On contact with the `Player` tag it adds `pointsForCoinPickup` (
 Level exit door. When the player enters the trigger, waits `levelLoadDelay` seconds (realtime) and loads the next scene in Build Settings, wrapping back to scene 0 after the last level. Resets the screen persist object before loading.
 
 ### `MainMenu.cs`
-Menu button handlers: `PlayGame()` loads the next scene in the build order, `QuitGame()` exits the application.
+Menu button handlers: `PlayGame()` loads the next scene in the build order. `QuitGame()` stops play mode in the editor and quits a desktop build. In the browser, where a page can't close its own tab, it shows a "Thanks for playing" screen with a Play Again button (`Assets/Plugins/WebGL/QuitScreen.jslib`). It also adds `MainMenuStyle` to itself.
+
+### `UI/` — HUD and menu polish
+- **`GameHud.cs`** — the in-game HUD, built in code: death counter with a skull (top left), score with a coin (top right), current level (top centre), and a red flash when you die.
+- **`MainMenuStyle.cs`** — the pink neon title with flicker, tagline, controls hint, and last-run stats on the main menu. Its colours and text are Inspector fields.
+- **`MenuButtonFx.cs`** — hover effect for menu buttons: the button grows and gets `> <` markers.
+- **`PixelArt.cs`** — draws the skull, coin and rounded panel sprites in code, so no image files are needed.
 
 ### `bullet.cs`
 The projectile, attached to the bullet prefab. It travels horizontally in the direction the player faces (`bulletSpeed`, default 10), destroys objects tagged `Enemies` on trigger contact, and destroys itself on any collision.
