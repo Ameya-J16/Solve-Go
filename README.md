@@ -1,6 +1,6 @@
 # Solve&Go!
 
-A 2D platformer with a twist — run, jump, climb, and shoot your way through 10 levels while answering trivia questions along the way. Built with Unity.
+A deliberately unfair 2D platformer. Run, jump, climb, and shoot your way to the exit while the level does its best to cheat you. Built with Unity.
 
 ### ▶ [Play in your browser](https://ameya-j16.github.io/Solve-Go/)
 
@@ -8,7 +8,9 @@ The web build is built and deployed automatically from this repo. See [Deploying
 
 ## About the Game
 
-Solve&Go! combines classic platformer action with quiz-based learning. You control a pixel-art hero who collects coins, dodges enemies and hazards, and races to the exit of each level. Between the action, quiz stages test your knowledge with multiple-choice questions (mostly computer/tech trivia).
+You control a pixel-art hero who collects coins, dodges enemies and hazards, and races to the exit of each level. The game is meant to be hard and unfair in the style of troll platformers: spikes pop out of the floor, ceilings drop on you, ground vanishes under your feet, and the exit door runs away. You learn each level by dying in it.
+
+> The game started as a bachelor's project at RAIT, where it had to be framed as an educational quiz game. The quiz side has been dropped, and the game is now the hard platformer it was always meant to be.
 
 You start with **3 lives**. Touching an enemy or a hazard costs a life and restarts the level; lose them all and the game resets back to the main menu. Coins are worth **100 points** each, and your score and lives persist across levels.
 
@@ -30,8 +32,8 @@ Input is handled through Unity's **Input System** package, so keyboard, mouse, a
 - **Patrolling enemies** — enemies walk back and forth, flipping when they reach an edge
 - **Coins & score** — pick up coins for points, with audio feedback
 - **Lives system** — 3 lives, level restarts on death, full reset on game over
-- **Quiz stages** — multiple-choice questions defined as ScriptableObject assets
-- **10 levels + main menu**, chained together through exit doors
+- **Troll traps** — drop-in scripts for pop-out spikes, falling crushers, collapsing or vanishing floors, invisible blocks, and exits that run away (see [`Scripts_Solve&Go!/README.md`](Solve&Go!/Assets/Scripts_Solve&Go!/README.md#troll-traps))
+- **Levels + main menu**, chained together through exit doors
 
 ## Getting Started
 
@@ -94,7 +96,7 @@ Solve-Go/
     ├── Assets/
     │   ├── Levels/             # All scenes: MainMenu + Levels 1–10
     │   ├── Scripts_Solve&Go!/  # Gameplay C# scripts (see its README)
-    │   ├── QuestionS/          # Quiz question ScriptableObject assets
+    │   │   └── Traps/          # Troll trap components
     │   ├── Prefabs_Solve&Go/   # Player, enemy, coin, bullet, exit, session prefabs
     │   ├── Prefabs/            # UI prefabs (buttons, title text)
     │   ├── Sprites/            # Backgrounds and images
@@ -113,7 +115,7 @@ Solve-Go/
 - **Unity 2020.3.23f1** (2D, built-in render pipeline)
 - **Input System** (`com.unity.inputsystem`) — cross-device player input
 - **Cinemachine** — camera follow and confinement
-- **TextMesh Pro** — UI text (score, lives, quiz)
+- **TextMesh Pro** — UI text (score, lives)
 - **2D Tilemap + Tilemap Extras** — level construction with rule tiles
 - **2D Animation / PSD Importer / Sprite Shape** — character and world art
 
