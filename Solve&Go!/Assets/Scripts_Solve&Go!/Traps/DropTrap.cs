@@ -31,6 +31,12 @@ public class DropTrap : TrollTrap
         rb.freezeRotation = true;
     }
 
+    public void SetFall(float gravity, float removeAfter)
+    {
+        fallGravity = gravity;
+        destroyAfter = removeAfter;
+    }
+
     protected override void Fire()
     {
         rb.bodyType = RigidbodyType2D.Dynamic;

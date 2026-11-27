@@ -33,7 +33,7 @@ Input is handled through Unity's **Input System** package, so keyboard, mouse, a
 - **Coins & score** — pick up coins for points, with audio feedback
 - **Death counter** — unlimited retries, quick restart on death, deaths and score shown in the HUD
 - **Troll traps** — drop-in scripts for pop-out spikes, falling crushers, collapsing or vanishing floors, invisible blocks, and exits that run away (see [`Scripts_Solve&Go!/README.md`](Solve&Go!/Assets/Scripts_Solve&Go!/README.md#troll-traps))
-- **8 levels + main menu**, chained together through exit doors
+- **10 levels + main menu**, chained together through exit doors. The last two, **OBSCENE** and **ABSOLUTELY OBSCENE**, are built from text maps (see [`Assets/Levels/Maps`](Solve&Go!/Assets/Levels/Maps/README.md))
 
 ## Getting Started
 
@@ -63,6 +63,8 @@ The in-game level number is the position in Build Settings, which doesn't always
 | Level 1–6 | `level 1`, `level 2`, `Level 3` … `Level 6` |
 | Level 7 | `Level 9` |
 | Level 8 | `Level 10` |
+| Level 9 — OBSCENE | `Level 11` (map: `Levels/Maps/Level 11.txt`) |
+| Level 10 — ABSOLUTELY OBSCENE | `Level 12` (map: `Levels/Maps/Level 12.txt`) |
 
 `Level 7` and `Level 8` exist as scene files but are empty rooms, so they're left out of the build.
 
