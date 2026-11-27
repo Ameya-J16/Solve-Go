@@ -11,7 +11,7 @@ The player controller. Uses the **Input System** callbacks (`OnMove`, `OnJump`, 
 - **Jump** — only allowed while the feet collider (`BoxCollider2D`) touches the `Ground` layer
 - **Climb** — while touching the `Climbing` layer, gravity is zeroed and vertical input moves the player; drives the `isClimbing` animator bool
 - **Fire** — instantiates the bullet prefab at the `gun` transform
-- **Die** — when the body capsule touches the `enemies` or `Hazards` layers, the player gets a "death kick", the `dying` animator trigger fires, and `gameSession.ProcessPlayerDeath()` is called
+- **Die** — when the body capsule *or the feet box* touches the `enemies` or `Hazards` layers, the player gets a "death kick", the `dying` animator trigger fires, and `gameSession.ProcessPlayerDeath()` is called. The feet are checked too because the feet box is slightly wider at the bottom than the body. Checking only the body let you stand on or walk over spikes.
 
 Tunables exposed in the Inspector: `runSpeed`, `jumpSpeed`, `climbSpeed`, `deathkick`, bullet prefab, and gun transform.
 
