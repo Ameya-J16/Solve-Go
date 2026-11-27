@@ -16,15 +16,24 @@ on:
       - 'Solve&Go!/Packages/**'
       - 'Solve&Go!/ProjectSettings/**'
       - '.github/workflows/deploy-webgl.yml'
+  # Pull requests only build (to catch errors before merging); they never deploy.
+  pull_request:
+    branches: [main]
+    paths:
+      - 'Solve&Go!/Assets/**'
+      - 'Solve&Go!/Packages/**'
+      - 'Solve&Go!/ProjectSettings/**'
+      - '.github/workflows/deploy-webgl.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 # Never run two deployments at once; let an in-progress one finish.
+# A newer push to the same pull request cancels its older build.
 concurrency:
-  group: pages
-  cancel-in-progress: false
+  group: ${{ github.event_name == 'pull_request' && github.ref || 'pages' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   PROJECT_PATH: Solve&Go!
@@ -67,6 +76,7 @@ jobs:
           allowDirtyBuild: true
 
       - name: Upload web build
+        if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v5
         with:
           path: build/WebGL/${{ env.BUILD_NAME }}
@@ -74,7 +84,7 @@ jobs:
   deploy:
     name: Deploy to GitHub Pages
     needs: build
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       pages: write

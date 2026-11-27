@@ -414,10 +414,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7745f9865eb10a849a1106344e7eec98, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerLives: 3
+  respawnDelay: 0.8
+  score: 0
+  hudFont: {fileID: 11400000, guid: 3f548978026144643814d6fd1e11ee7f, type: 2}
+  coinIcon: {fileID: 556175475743165966, guid: 0740b1fbbf1f70645bd606066d74acb1, type: 3}
   livesText: {fileID: 1295807804}
   scoreText: {fileID: 1151276401}
-  score: 0
 --- !u!1 &3739666715874105148
 GameObject:
   m_ObjectHideFlags: 0
