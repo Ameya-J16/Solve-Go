@@ -36,13 +36,45 @@ Level exit door. When the player enters the trigger, waits `levelLoadDelay` seco
 ### `MainMenu.cs`
 Menu button handlers: `PlayGame()` loads the next scene in the build order, `QuitGame()` exits the application.
 
-### `bullet.cs` / `NewBehaviourScript.cs` — ⚠️ note the swap
-The file names are swapped relative to the classes they contain:
+### `bullet.cs`
+The projectile, attached to the bullet prefab. It travels horizontally in the direction the player faces (`bulletSpeed`, default 10), destroys objects tagged `Enemies` on trigger contact, and destroys itself on any collision.
 
-- **`NewBehaviourScript.cs`** contains the **`bullet`** class — the actual projectile. It travels horizontally in the direction the player faces (`bulletSpeed`, default 10), destroys objects tagged `Enemies` on trigger contact, and destroys itself on any collision.
-- **`bullet.cs`** contains the empty template class **`NewBehaviourScript`** — it does nothing.
+> The contents of `bullet.cs` and `NewBehaviourScript.cs` used to be swapped. Because Unity needs a MonoBehaviour's class name to match its file name, the bullet prefab (which references `bullet.cs`) showed a missing script and bullets did nothing. The contents are now back in the right files. The `.meta` GUIDs were left alone, so the prefab reference still works.
 
-Because Unity requires a MonoBehaviour's class name to match its file name to attach it in the Inspector, renaming these files to match their classes would fix the mismatch — but do it inside the Unity editor so the `.meta` GUIDs (and the bullet prefab reference) stay intact.
+### `NewBehaviourScript.cs`
+An empty Unity template script. Nothing uses it, so it can be deleted.
+
+## Troll Traps
+
+The scripts in `Traps/` turn ordinary objects into traps. Each one watches a **trigger zone**, drawn as a red box in the Scene view, and springs the moment the player's body touches it. You don't need extra trigger colliders. Move and resize the box with **Zone Offset** and **Zone Size** in the Inspector. When the player dies, the level reloads and every trap resets.
+
+| Script | What it does | Layer to use | Where to put the zone |
+|--------|--------------|--------------|-----------------------|
+| `PopOutTrap` | Starts hidden (e.g. inside the floor) and shoots out when you get close. **Hidden Offset** is where it hides, relative to where you placed it. | `Hazards` | Where the player will be standing when it pops |
+| `DropTrap` | Hangs still, then falls. Use it as a ceiling crusher or a collapsing floor. Adds a `Rigidbody2D` automatically. | Crusher: `Hazards`<br>Floor: `Ground` | Crusher: under it (default)<br>Floor: just on top of it |
+| `ToggleBlock` | **Vanish**: floor that disappears when you step on it.<br>**Appear**: invisible block that shows up when you jump, so you bonk your head on it. | `Ground` | Vanish: on top of it (default)<br>Appear: under it |
+| `RunawayTrap` | Slides by **Move By** when you get close. Put it on the exit door so the door runs away, or on a platform so it slides out from under you. The yellow line shows where it goes. | Whatever the object already uses | In front of it, on the side the player comes from |
+
+All traps also have:
+- **Delay**: seconds between entering the zone and the trap firing. Leave it at 0 for maximum unfairness.
+- **`Activate()`**: a public method, so you can also fire a trap from a UnityEvent, e.g. a button or another trap.
+
+### Adding a trap to a level
+
+Traps work on **individual GameObjects**, not on tiles painted into a Tilemap, because a whole Tilemap is a single object.
+
+1. Drag a sprite into the scene, e.g. a spike or ground tile from `Assets/objects/`.
+2. Add a **BoxCollider2D**. Leave **Is Trigger** off.
+3. Set the object's **Layer** using the table above. `Hazards` kills on touch, and `Ground` can be stood on and jumped from.
+4. Add the trap component and drag the red zone box to where it should fire.
+5. Press Play and die a lot.
+
+Don't put traps under the **Screen Persist** object. Anything under it survives level reloads, so a trap there would stay sprung after you die.
+
+Some troll ideas don't need a script:
+- **Fake floor**: a ground sprite with no collider. You fall right through it.
+- **Fake exit**: a door sprite on the `Hazards` layer. It kills you.
+- **Fake coin**: a coin sprite on the `Hazards` layer.
 
 ## Layers & Tags the Scripts Depend On
 

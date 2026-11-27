@@ -1,0 +1,88 @@
+# Builds the Unity project for WebGL and publishes it to GitHub Pages,
+# so the game is playable in the browser at:
+#   https://ameya-j16.github.io/Solve-Go/
+#
+# One-time setup (see README → "Deploying the web build"):
+#   1. Repo secrets: UNITY_LICENSE, UNITY_EMAIL, UNITY_PASSWORD
+#   2. Settings → Pages → Source: "GitHub Actions"
+
+name: Build & Deploy WebGL
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Solve&Go!/Assets/**'
+      - 'Solve&Go!/Packages/**'
+      - 'Solve&Go!/ProjectSettings/**'
+      - '.github/workflows/deploy-webgl.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Never run two deployments at once; let an in-progress one finish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  PROJECT_PATH: Solve&Go!
+  BUILD_NAME: SolveAndGo
+
+jobs:
+  build:
+    name: Build WebGL
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      # The repo has a Library/ folder committed from a Windows editor.
+      # Unity's Library is a machine-specific cache, so throw it away and let
+      # the CI cache (next step) or a fresh import rebuild it.
+      - name: Remove committed Library cache
+        run: rm -rf "${PROJECT_PATH}/Library"
+
+      - name: Cache Unity Library
+        uses: actions/cache@v5
+        with:
+          path: ${{ env.PROJECT_PATH }}/Library
+          key: Library-WebGL-${{ hashFiles('Solve&Go!/Assets/**', 'Solve&Go!/Packages/**', 'Solve&Go!/ProjectSettings/**') }}
+          restore-keys: |
+            Library-WebGL-
+
+      - name: Build with Unity
+        uses: game-ci/unity-builder@v5
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          projectPath: ${{ env.PROJECT_PATH }}
+          targetPlatform: WebGL
+          buildName: ${{ env.BUILD_NAME }}
+          versioning: None
+          allowDirtyBuild: true
+
+      - name: Upload web build
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: build/WebGL/${{ env.BUILD_NAME }}
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v5
