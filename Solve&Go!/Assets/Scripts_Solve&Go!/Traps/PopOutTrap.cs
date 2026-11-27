@@ -25,6 +25,7 @@ public class PopOutTrap : TrollTrap
     protected override void Awake()
     {
         base.Awake();
+        if (GetComponent<KillsOnTouch>() == null) { gameObject.AddComponent<KillsOnTouch>(); }
         transform.position = StartPosition + (Vector3)hiddenOffset;
         SetSolid(false);
         if (invisibleUntilFired) { SetVisible(false); }
