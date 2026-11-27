@@ -8,7 +8,8 @@ These text files are the layouts of in-game levels 7 to 10:
 | `Level 10.txt` | Level 8. Converted the same way, with more traps. The water pool under the low ceiling is fixed. |
 | `Level 11.txt` | Level 9, **OBSCENE** |
 | `Level 12.txt` | Level 10, **ABSOLUTELY OBSCENE** |
- When the scene starts, the scene's **Level Builder** object (`Scripts_Solve&Go!/LevelBuilder.cs`) reads its map and:
+
+When the scene starts, the scene's **Level Builder** object (`Scripts_Solve&Go!/LevelBuilder.cs`) reads its map and:
 - paints the tilemaps
 - moves the player and the exit
 - spawns enemies and coins
