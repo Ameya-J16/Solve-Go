@@ -1,6 +1,14 @@
 # Level maps
 
-`Level 11.txt` and `Level 12.txt` are the layouts of the last two levels, **OBSCENE** and **ABSOLUTELY OBSCENE** (in-game levels 9 and 10). When the scene starts, the scene's **Level Builder** object (`Scripts_Solve&Go!/LevelBuilder.cs`) reads its map and:
+These text files are the layouts of in-game levels 7 to 10:
+
+| File | In-game level |
+|------|---------------|
+| `Level 9.txt` | Level 7. Converted from the hand-made scene, with the first troll traps added. |
+| `Level 10.txt` | Level 8. Converted the same way, with more traps. The water pool under the low ceiling is fixed. |
+| `Level 11.txt` | Level 9, **OBSCENE** |
+| `Level 12.txt` | Level 10, **ABSOLUTELY OBSCENE** |
+ When the scene starts, the scene's **Level Builder** object (`Scripts_Solve&Go!/LevelBuilder.cs`) reads its map and:
 - paints the tilemaps
 - moves the player and the exit
 - spawns enemies and coins
@@ -25,6 +33,7 @@ One character per tile. The top line of the file is the top of the level. Lines 
 | `p` | **hidden spike**: pops out of the floor when you get close |
 | `D` | **crusher**: drops from the ceiling when you walk under it |
 | `M` | mushroom (bounce) |
+| `w` / `W` | water / deep water (deadly) |
 | `H` | ladder |
 | `P` | player start |
 | `X` | exit door (stands on the floor below it) |
@@ -32,6 +41,8 @@ One character per tile. The top line of the file is the top of the level. Lines 
 | `E` / `e` | enemy walking right / left |
 | `c` | coin |
 | space | empty |
+
+The Level Builder's **Origin** is the tile where the map's bottom-left corner goes. The converted levels use (−22, −8), so they stay exactly where the hand-made versions were.
 
 The Level Builder component also has per-level difficulty settings:
 - enemy speed

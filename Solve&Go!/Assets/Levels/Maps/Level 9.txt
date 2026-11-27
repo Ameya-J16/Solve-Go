@@ -1,0 +1,38 @@
+// Level 7 (scene Level 9). Map origin = tile (-22, -8).
+// LevelBuilder map. One character per tile; the top line is the top of the level.
+// Lines starting with // are ignored.
+//   #  ground            =  fake ground (looks solid, you fall through)
+//   F  collapsing floor (falls away when you step on it)
+//   I  invisible block (appears when you jump into the space under it)
+//   ^  spikes   v ceiling spikes   < > wall spikes
+//   p  hidden spike (pops out of the floor when you get close)
+//   D  crusher (drops from the ceiling when you walk under it)
+//   M  mushroom (bounce)   H  ladder   w  water   W  deep water
+//   P  player start   X  exit   x  where the exit runs to when you get close
+//   E  enemy walking right   e  enemy walking left   c  coin
+#####################################################################
+#####################################################################
+#####################################################################
+###           #          #          #                             X##
+###           #          #          #                            ####
+###P p        #          #^^   #    #                    Ep     #####
+#######       #          ##### #    #        #         ##############
+###   ###^    #                #    #        #       #            ###
+###     ##   ^#     # E       ##    #        #     #              ###
+###      ###H##     ####==######    #        #          ####      ###
+###         H #     ##              #        #####           #    ###
+###         H #     ##            # #                 ^           ###
+###         H #M    ##        E  ##                ####        ######
+###         H ####  ##     ########                           ##  ###
+###           #     ##                                   ####     ###
+###    E    H##     ##^^^        #                                ###
+###  ##########     #########    #                   ###          ###
+###                 ##           #      ###                       ###
+###                 ##           #      ###^     ###              ###
+###               M ##     #######      #####                     ###
+########        ######                  ########                  ###
+#              #######   ##             ########wwwwwwwwwwwwwwwwwww##
+##   E        ########   ### E        M ########WWWWWWWWWWWWWWWWWWW##
+#########FFF##########www############################################
+#########^^^##########WWW############################################
+#####################################################################
