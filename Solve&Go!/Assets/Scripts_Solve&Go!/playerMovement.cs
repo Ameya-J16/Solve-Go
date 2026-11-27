@@ -96,7 +96,11 @@ public class playerMovement : MonoBehaviour
 
     void Die()
     {
-        if(mycapsule.IsTouchingLayers(LayerMask.GetMask("enemies", "Hazards")))
+        // Check the feet too: the feet box is a little wider at the bottom than
+        // the body, so on its own it could ride up a spike's slope and keep the
+        // body from ever touching it (you could stand on or walk over spikes).
+        int deadly = LayerMask.GetMask("enemies", "Hazards");
+        if(mycapsule.IsTouchingLayers(deadly) || myFeet.IsTouchingLayers(deadly))
         {
             isAlive = false;
             animateplayer.SetTrigger("dying");
