@@ -24,6 +24,12 @@ public class enemyMovement : MonoBehaviour
     int groundMask;
     float turnCooldown;
 
+    // Used by LevelBuilder. Negative = start walking left.
+    public void SetSpeed(float speed)
+    {
+        moveSpeed = speed;
+    }
+
     void Start()
     {
         myRigidBody = GetComponent<Rigidbody2D>();

@@ -16,6 +16,12 @@ public class RunawayTrap : TrollTrap
     [Tooltip("Speed in units per second.")]
     [SerializeField] float speed = 10f;
 
+    public void SetMove(Vector2 by, float unitsPerSecond)
+    {
+        moveBy = by;
+        speed = unitsPerSecond;
+    }
+
     protected override void Fire()
     {
         StartCoroutine(MoveTo(StartPosition + (Vector3)moveBy, speed));

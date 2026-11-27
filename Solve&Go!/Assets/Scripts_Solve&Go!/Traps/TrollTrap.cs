@@ -51,6 +51,14 @@ public abstract class TrollTrap : MonoBehaviour
         }
     }
 
+    // Sets the trigger zone from code (used by LevelBuilder).
+    public void SetZone(Vector2 offset, Vector2 size, float wait)
+    {
+        zoneOffset = offset;
+        zoneSize = size;
+        delay = wait;
+    }
+
     // Public so you can also fire a trap from somewhere else, e.g. from a
     // UnityEvent on another object.
     public void Activate()

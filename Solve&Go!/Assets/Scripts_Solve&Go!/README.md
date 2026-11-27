@@ -37,6 +37,16 @@ Level exit door. When the player enters the trigger, waits `levelLoadDelay` seco
 ### `MainMenu.cs`
 Menu button handlers: `PlayGame()` loads the next scene in the build order. `QuitGame()` stops play mode in the editor and quits a desktop build. In the browser, where a page can't close its own tab, it shows a "Thanks for playing" screen with a Play Again button (`Assets/Plugins/WebGL/QuitScreen.jslib`). It also adds `MainMenuStyle` to itself.
 
+### `LevelBuilder.cs`
+Builds a level from a text map when the scene starts. It:
+- paints the tilemaps (ground, spikes, ladders, mushrooms, background)
+- moves the player and exit into place
+- spawns enemies and coins
+- creates the troll traps
+- fits the camera bounds to the map
+
+Levels 11 and 12 use it. The map legend and the player's jump limits are in [`Assets/Levels/Maps/README.md`](../Levels/Maps/README.md).
+
 ### `UI/` — HUD and menu polish
 - **`GameHud.cs`** — the in-game HUD, built in code: death counter with a skull (top left), score with a coin (top right), current level (top centre), and a red flash when you die.
 - **`MainMenuStyle.cs`** — the pink neon title with flicker, tagline, controls hint, and last-run stats on the main menu. Its colours and text are Inspector fields.
@@ -60,6 +70,8 @@ The scripts in `Traps/` turn ordinary objects into traps. Each one watches a **t
 | `PopOutTrap` | Starts hidden (e.g. inside the floor) and shoots out when you get close. **Hidden Offset** is where it hides, relative to where you placed it. | `Hazards` | Where the player will be standing when it pops |
 | `DropTrap` | Hangs still, then falls. Use it as a ceiling crusher or a collapsing floor. Adds a `Rigidbody2D` automatically. | Crusher: `Hazards`<br>Floor: `Ground` | Crusher: under it (default)<br>Floor: just on top of it |
 | `ToggleBlock` | **Vanish**: floor that disappears when you step on it.<br>**Appear**: invisible block that shows up when you jump, so you bonk your head on it. | `Ground` | Vanish: on top of it (default)<br>Appear: under it |
+| `CollapsingTiles` | Tiles in the ground tilemap that fall away when you step on them. Made by `LevelBuilder` from `F` in a map. | (tilemap) | Just above the tiles |
+| `TileAppear` | An invisible block that becomes a ground tile when you jump into the space under it. Made by `LevelBuilder` from `I` in a map. | (tilemap) | The cell under it |
 | `RunawayTrap` | Slides by **Move By** when you get close. Put it on the exit door so the door runs away, or on a platform so it slides out from under you. The yellow line shows where it goes. | Whatever the object already uses | In front of it, on the side the player comes from |
 
 All traps also have:
