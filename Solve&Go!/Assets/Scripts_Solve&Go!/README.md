@@ -36,13 +36,13 @@ Level exit door. When the player enters the trigger, waits `levelLoadDelay` seco
 ### `MainMenu.cs`
 Menu button handlers: `PlayGame()` loads the next scene in the build order, `QuitGame()` exits the application.
 
-### `bullet.cs` / `NewBehaviourScript.cs` — ⚠️ note the swap
-The file names are swapped relative to the classes they contain:
+### `bullet.cs`
+The projectile, attached to the bullet prefab. It travels horizontally in the direction the player faces (`bulletSpeed`, default 10), destroys objects tagged `Enemies` on trigger contact, and destroys itself on any collision.
 
-- **`NewBehaviourScript.cs`** contains the **`bullet`** class — the actual projectile. It travels horizontally in the direction the player faces (`bulletSpeed`, default 10), destroys objects tagged `Enemies` on trigger contact, and destroys itself on any collision.
-- **`bullet.cs`** contains the empty template class **`NewBehaviourScript`** — it does nothing.
+> The contents of `bullet.cs` and `NewBehaviourScript.cs` used to be swapped. Because Unity needs a MonoBehaviour's class name to match its file name, the bullet prefab (which references `bullet.cs`) showed a missing script and bullets did nothing. The contents are now back in the right files. The `.meta` GUIDs were left alone, so the prefab reference still works.
 
-Because Unity requires a MonoBehaviour's class name to match its file name to attach it in the Inspector, renaming these files to match their classes would fix the mismatch — but do it inside the Unity editor so the `.meta` GUIDs (and the bullet prefab reference) stay intact.
+### `NewBehaviourScript.cs`
+An empty Unity template script. Nothing uses it, so it can be deleted.
 
 ## Layers & Tags the Scripts Depend On
 
