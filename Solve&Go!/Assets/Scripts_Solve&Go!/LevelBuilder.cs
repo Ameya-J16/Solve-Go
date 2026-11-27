@@ -243,8 +243,8 @@ public class LevelBuilder : MonoBehaviour
                     case 'P': PlacePlayer(c); break;
                     case 'X': exitCell = p; break;
                     case 'x': exitTarget = p; break;
-                    case 'E': SpawnEnemy(c, enemySpeed); break;
-                    case 'e': SpawnEnemy(c, -enemySpeed); break;
+                    case 'E': SpawnEnemy(CellCenter(Cell(x, FloorBelow(x, y))), enemySpeed); break;
+                    case 'e': SpawnEnemy(CellCenter(Cell(x, FloorBelow(x, y))), -enemySpeed); break;
                     case 'c': coins.Add(c); break;
                     case 'p': MakePopSpike(p); break;
                     case 'D': MakeCrusher(p, x, y); break;
@@ -256,6 +256,14 @@ public class LevelBuilder : MonoBehaviour
         MakeCollapsingFloors();
         if (exitCell.HasValue) { PlaceExit(exitCell.Value, exitTarget); }
         SpawnCoins(coins);
+    }
+
+    // Lowest empty cell at or below (x, y) before solid ground: where something
+    // dropped at (x, y) would stand.
+    int FloorBelow(int x, int y)
+    {
+        while (y > 0 && At(x, y - 1) != '#' && At(x, y - 1) != 'F') { y--; }
+        return y;
     }
 
     Vector3 CellCenter(Vector3Int p)
@@ -339,6 +347,7 @@ public class LevelBuilder : MonoBehaviour
         BoxCollider2D box = go.AddComponent<BoxCollider2D>();
         box.size = new Vector2(0.95f, 0.95f);
         DropTrap trap = go.AddComponent<DropTrap>();
+        go.AddComponent<KillsOnTouch>();
 
         int drop = 0;
         while (mapY - drop - 1 >= 0 && !IsGround(At(mapX, mapY - drop - 1))) { drop++; }
@@ -433,6 +442,19 @@ public class LevelBuilder : MonoBehaviour
             confiner.m_BoundingShape2D = bounds;
             confiner.InvalidatePathCache();
         }
+    }
+
+    // ---------------- Testing ----------------
+
+    // Moves the player to a map cell, e.g. from the browser console on the web build:
+    //   unityInstance.SendMessage("Level Builder", "TeleportPlayer", "40,15")
+    // Handy for checking a spot deep in a level without playing up to it.
+    public void TeleportPlayer(string mapXY)
+    {
+        string[] parts = mapXY.Split(',');
+        int x, y;
+        if (parts.Length != 2 || !int.TryParse(parts[0].Trim(), out x) || !int.TryParse(parts[1].Trim(), out y)) { return; }
+        PlacePlayer(CellCenter(Cell(x, y)));
     }
 
     // ---------------- Editor ----------------

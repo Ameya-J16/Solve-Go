@@ -18,6 +18,7 @@ public class playerMovement : MonoBehaviour
     [SerializeField]float climbSpeed = 5f;
     [SerializeField] Vector2 deathkick = new Vector2 (10f, 10f);
     float gravityAtStart;
+    Collider2D[] feetContacts = new Collider2D[8];
     [SerializeField] GameObject Bullet;
     [SerializeField] Transform gun;
 
@@ -96,11 +97,20 @@ public class playerMovement : MonoBehaviour
 
     void Die()
     {
-        // Check the feet too: the feet box is a little wider at the bottom than
-        // the body, so on its own it could ride up a spike's slope and keep the
-        // body from ever touching it (you could stand on or walk over spikes).
-        int deadly = LayerMask.GetMask("enemies", "Hazards");
-        if(mycapsule.IsTouchingLayers(deadly) || myFeet.IsTouchingLayers(deadly))
+        // The body touching an enemy or a hazard kills, as it always did.
+        // The feet only count for hazards marked KillsOnTouch (pop-up spikes and
+        // crushers), so you can't stand on those, while water and spike tiles
+        // behave exactly as in the original levels.
+        bool dead = mycapsule.IsTouchingLayers(LayerMask.GetMask("enemies", "Hazards"));
+        if(!dead)
+        {
+            int n = myFeet.GetContacts(feetContacts);
+            for(int i = 0; i < n && !dead; i++)
+            {
+                if(feetContacts[i] != null && feetContacts[i].GetComponent<KillsOnTouch>() != null) { dead = true; }
+            }
+        }
+        if(dead)
         {
             isAlive = false;
             animateplayer.SetTrigger("dying");

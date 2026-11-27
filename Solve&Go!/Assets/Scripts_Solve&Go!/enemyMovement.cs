@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -30,16 +31,23 @@ public class enemyMovement : MonoBehaviour
         moveSpeed = speed;
     }
 
-    void Start()
+    bool ready;
+
+    IEnumerator Start()
     {
         myRigidBody = GetComponent<Rigidbody2D>();
         groundMask = LayerMask.GetMask("Ground");
-        if (snapToGround) { SnapToGround(); }
         FaceMoveDirection();
+        // Wait one physics step: in levels built at runtime (LevelBuilder) the
+        // tile colliders only exist after it, and the raycasts below need them.
+        yield return new WaitForFixedUpdate();
+        if (snapToGround) { SnapToGround(); }
+        ready = true;
     }
 
     void Update()
     {
+        if (!ready) { myRigidBody.velocity = Vector2.zero; return; }
         myRigidBody.velocity = new Vector2(moveSpeed, 0f);
 
         turnCooldown -= Time.deltaTime;
