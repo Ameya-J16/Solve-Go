@@ -177,16 +177,28 @@ public class LevelBuilder : MonoBehaviour
         }
 
         // Fake floor: painted like ground (so the edges match) but with no collider.
-        // Done last, because repainting a neighbour would reset it.
+        // If spikes or water sit right under it, paint fake ground over them too,
+        // so the floor looks solid (grass on top, no gap showing the hazard).
+        // The hazard is still there and still kills. Collider changes are done
+        // last, because repainting a neighbour would reset them.
         if (ground != null)
         {
+            List<Vector3Int> fake = new List<Vector3Int>();
             for (int x = 0; x < width; x++)
             {
                 for (int y = 0; y < height; y++)
                 {
-                    if (cells[x, y] == '=') { ground.SetColliderType(Cell(x, y), Tile.ColliderType.None); }
+                    if (cells[x, y] != '=') { continue; }
+                    fake.Add(Cell(x, y));
+                    char below = At(x, y - 1);
+                    if (below == '^' || below == 'w' || below == 'W')
+                    {
+                        ground.SetTile(Cell(x, y - 1), groundTile);
+                        fake.Add(Cell(x, y - 1));
+                    }
                 }
             }
+            foreach (Vector3Int c in fake) { ground.SetColliderType(c, Tile.ColliderType.None); }
         }
     }
 
