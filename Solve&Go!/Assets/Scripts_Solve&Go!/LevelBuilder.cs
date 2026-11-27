@@ -19,12 +19,18 @@ public class LevelBuilder : MonoBehaviour
     [Header("Map")]
     [Tooltip("Text file with the level layout, one character per tile.")]
     [SerializeField] TextAsset mapFile;
+    [Tooltip("Tile position of the map's bottom-left corner. Lets a converted level stay where it was.")]
+    [SerializeField] Vector2Int origin;
 
     [Header("Tiles")]
     [SerializeField] TileBase groundTile;
     [SerializeField] TileBase spikeTile;
     [SerializeField] TileBase ladderTile;
     [SerializeField] TileBase mushroomTile;
+    [Tooltip("'w' in the map: water surface (deadly, on the Hazards tilemap).")]
+    [SerializeField] TileBase waterTile;
+    [Tooltip("'W' in the map: deep water (deadly, on the Hazards tilemap).")]
+    [SerializeField] TileBase deepWaterTile;
     [Tooltip("Background tiles, picked per cell. Repeat a tile to make it more common.")]
     [SerializeField] TileBase[] backgroundTiles;
 
@@ -93,6 +99,9 @@ public class LevelBuilder : MonoBehaviour
 
     static bool IsGround(char c) { return c == '#' || c == '=' || c == 'F'; }
 
+    // Map coordinates (0,0 = bottom-left of the text map) to tilemap cells.
+    Vector3Int Cell(int x, int y) { return new Vector3Int(x + origin.x, y + origin.y, 0); }
+
     void FindTilemaps()
     {
         foreach (Tilemap t in FindObjectsOfType<Tilemap>())
@@ -125,8 +134,9 @@ public class LevelBuilder : MonoBehaviour
             {
                 for (int y = -Margin; y < height + Margin; y++)
                 {
-                    positions.Add(new Vector3Int(x, y, 0));
-                    tiles.Add(backgroundTiles[Hash(x, y) % backgroundTiles.Length]);
+                    Vector3Int c = Cell(x, y);
+                    positions.Add(c);
+                    tiles.Add(backgroundTiles[Hash(c.x, c.y) % backgroundTiles.Length]);
                 }
             }
             background.SetTiles(positions.ToArray(), tiles.ToArray());
@@ -139,7 +149,7 @@ public class LevelBuilder : MonoBehaviour
             {
                 for (int y = 0; y < height; y++)
                 {
-                    if (IsGround(cells[x, y])) { positions.Add(new Vector3Int(x, y, 0)); }
+                    if (IsGround(cells[x, y])) { positions.Add(Cell(x, y)); }
                 }
             }
             TileBase[] tiles = new TileBase[positions.Count];
@@ -151,7 +161,7 @@ public class LevelBuilder : MonoBehaviour
         {
             for (int y = 0; y < height; y++)
             {
-                Vector3Int p = new Vector3Int(x, y, 0);
+                Vector3Int p = Cell(x, y);
                 switch (cells[x, y])
                 {
                     case '^': Spike(p, 0f); break;
@@ -160,6 +170,8 @@ public class LevelBuilder : MonoBehaviour
                     case '<': Spike(p, 90f); break;
                     case 'H': if (climbing != null) { climbing.SetTile(p, ladderTile); } break;
                     case 'M': if (bouncing != null) { bouncing.SetTile(p, mushroomTile); } break;
+                    case 'w': if (hazards != null) { hazards.SetTile(p, waterTile); } break;
+                    case 'W': if (hazards != null) { hazards.SetTile(p, deepWaterTile); } break;
                 }
             }
         }
@@ -172,7 +184,7 @@ public class LevelBuilder : MonoBehaviour
             {
                 for (int y = 0; y < height; y++)
                 {
-                    if (cells[x, y] == '=') { ground.SetColliderType(new Vector3Int(x, y, 0), Tile.ColliderType.None); }
+                    if (cells[x, y] == '=') { ground.SetColliderType(Cell(x, y), Tile.ColliderType.None); }
                 }
             }
         }
@@ -212,7 +224,7 @@ public class LevelBuilder : MonoBehaviour
         {
             for (int y = 0; y < height; y++)
             {
-                Vector3Int p = new Vector3Int(x, y, 0);
+                Vector3Int p = Cell(x, y);
                 Vector3 c = CellCenter(p);
                 switch (cells[x, y])
                 {
@@ -223,7 +235,7 @@ public class LevelBuilder : MonoBehaviour
                     case 'e': SpawnEnemy(c, -enemySpeed); break;
                     case 'c': coins.Add(c); break;
                     case 'p': MakePopSpike(p); break;
-                    case 'D': MakeCrusher(p); break;
+                    case 'D': MakeCrusher(p, x, y); break;
                     case 'I': MakeInvisibleBlock(p); break;
                 }
             }
@@ -308,7 +320,7 @@ public class LevelBuilder : MonoBehaviour
     }
 
     // 'D': a block in the ceiling that drops when you walk under it.
-    void MakeCrusher(Vector3Int cell)
+    void MakeCrusher(Vector3Int cell, int mapX, int mapY)
     {
         Sprite sprite = GroundSpriteAt(cell);
         GameObject go = NewTrapObject("Crusher", CellCenter(cell), sprite, "Hazards", "platform");
@@ -317,7 +329,7 @@ public class LevelBuilder : MonoBehaviour
         DropTrap trap = go.AddComponent<DropTrap>();
 
         int drop = 0;
-        while (cell.y - drop - 1 >= 0 && !IsGround(At(cell.x, cell.y - drop - 1))) { drop++; }
+        while (mapY - drop - 1 >= 0 && !IsGround(At(mapX, mapY - drop - 1))) { drop++; }
         trap.SetZone(new Vector2(0f, -0.5f - drop / 2f), new Vector2(1.3f, Mathf.Max(1, drop)), 0f);
         trap.SetFall(crusherGravity, 4f);
     }
@@ -348,7 +360,7 @@ public class LevelBuilder : MonoBehaviour
                 int count = x - start;
 
                 Vector3Int[] run = new Vector3Int[count];
-                for (int i = 0; i < count; i++) { run[i] = new Vector3Int(start + i, y, 0); }
+                for (int i = 0; i < count; i++) { run[i] = Cell(start + i, y); }
 
                 Vector3 left = CellCenter(run[0]);
                 GameObject go = new GameObject("Collapsing Floor");
@@ -391,8 +403,8 @@ public class LevelBuilder : MonoBehaviour
         PolygonCollider2D bounds = background.GetComponent<PolygonCollider2D>();
         if (bounds == null) { return; }
 
-        Vector3 min = background.CellToWorld(new Vector3Int(0, 0, 0));
-        Vector3 max = background.CellToWorld(new Vector3Int(width, height, 0));
+        Vector3 min = background.CellToWorld(Cell(0, 0));
+        Vector3 max = background.CellToWorld(Cell(width, height));
         Transform t = bounds.transform;
         Vector2[] corners =
         {
