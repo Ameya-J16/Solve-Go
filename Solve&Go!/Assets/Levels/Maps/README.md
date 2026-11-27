@@ -25,7 +25,7 @@ One character per tile. The top line of the file is the top of the level. Lines 
 | Char | Tile |
 |------|------|
 | `#` | ground |
-| `=` | **fake ground**: looks solid, but you fall through |
+| `=` | **fake ground**: looks solid, but you fall through. Spikes or water directly under it are hidden behind more fake ground, so the floor looks seamless. |
 | `F` | **collapsing floor**: falls away a moment after you step on it (each horizontal run of `F` falls together) |
 | `I` | **invisible block**: appears when you jump into the space under it |
 | `^` | spikes |
